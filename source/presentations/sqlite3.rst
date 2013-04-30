@@ -90,36 +90,43 @@ to it:
     :class: small incremental
 
     >>> import createdb
+    >>> createdb.main()
     Need to create database and schema
     >>> reload(createdb)
-    Database exists, assume schema does, too.
     <module 'createdb' from 'createdb.pyc'>
+    >>> createdb.main()
+    Database exists, assume schema does, too.
 
 .. class:: incremental
 
 Let's see how this works
 
-``createdb.py``
----------------
+edit createdb.py
+----------------
+
+.. class:: small
 
 Open ``createdb.py`` in your favorite text editor:
 
 .. code-block:: python
-    :class: small incremental
+    :class: small
 
     import os
     import sqlite3
 
     DB_FILENAME = 'books.db'
     DB_IS_NEW = not os.path.exists(DB_FILENAME)
-    conn =  sqlite3.connect(DB_FILENAME)
 
-    if DB_IS_NEW:
-        print 'Need to create schema'
-    else:
-        print 'Database exists, assume schema does, too.'
+    def main():
+        conn =  sqlite3.connect(DB_FILENAME)
+        if DB_IS_NEW:
+            print 'Need to create database and schema'
+        else:
+            print 'Database exists, assume schema does, too.'
+        conn.close()
 
-    conn.close()
+    if __name__ == '__main__':
+        main()
 
 Set Up The Schema
 -----------------
@@ -133,16 +140,16 @@ Make the following changes to ``createdb.py``:
     SCHEMA_FILENAME = 'ddl.sql' # <- this is new
     DB_IS_NEW = not os.path.exists(DB_FILENAME)
 
-    with sqlite3.connect(DB_FILENAME) as conn: # <- context mgr (2.6+)
-        if DB_IS_NEW: # A whole new if clause:
-            print 'Creating schema'
-            with open(SCHEMA_FILENAME, 'rt') as f:
-                schema = f.read()
-            conn.executescript(schema)
-        else:
-            print 'Database exists, assume schema does, too.'
-    
-    # delete the `conn.close()` that was here.
+    def main():
+        with sqlite3.connect(DB_FILENAME) as conn: # <- context mgr
+            if DB_IS_NEW: # A whole new if clause:
+                print 'Creating schema'
+                with open(SCHEMA_FILENAME, 'rt') as f:
+                    schema = f.read()
+                conn.executescript(schema)
+            else:
+                print 'Database exists, assume schema does, too.'
+        # delete the `conn.close()` that was here.
 
 Verify Your Work
 ----------------
@@ -152,16 +159,12 @@ in the ``examples`` folder
 
 .. container:: incremental
 
-    Then restart your interpreter and try it out
-
-    .. code-block:: python
-        :class: small
-
-        >>> import createdb
+    Then run the script from the command line to try it out::
+    
+        $ python2.7 createdb.py
         Creating schema
-        >>> reload(createdb)
+        $ python2.7 createdb.py
         Database exists, assume schema does, too.
-        <module 'createdb' from 'createdb.pyc'>
 
 Introspect the Database
 -----------------------
@@ -176,22 +179,25 @@ Add the following to ``createdb.py``:
 
     else:
         # in the else clause, replace the print statement with this:
+        print "Database exists, introspecting:"
         tablenames = ['author', 'book']
         cursor = conn.cursor()
         for name in tablenames:
+            print "\n"
             show_table_metadata(cursor, name)
 
 .. class: incremental
 
-Quit your interpreter again, then restart it and again ``import createdb``
+Then try running ``python2.7 createdb.py`` again
 
 My Results
 ----------
 
-.. code-block:: python
-    :class: small
+.. class:: small
 
-    >>> import createdb
+::
+
+    $ python2.7 createdb.py
     Table Metadata for 'author':
     cid        | name       | type       | notnull    | dflt_value | pk         |
     -----------+------------+------------+------------+------------+------------+-
@@ -215,8 +221,7 @@ Inserting Data
 --------------
 
 
-We'll come back to the utility method. First, let's load up some data. In your
-interpreter, type:
+Let's load up some data. Fire up your interpreter and type:
 
 .. code-block:: python
     :class: small
@@ -260,7 +265,7 @@ Let's query our database to find out:
 
 .. class:: incremental
 
-Alright!  We've got a bit of data in there.  Let's make it more efficient
+Alright!  We've got data in there.  Let's make it more efficient
 
 Parameterized Statements
 ------------------------
@@ -310,21 +315,27 @@ Again, query the database:
 Transactions
 ------------
 
-Transactions allow you to group a number of operations together, testing to
-make sure they worked *before* pushing the results into the database
+.. class:: small
 
-.. class:: incremental
+Transactions let you group a number of operations together, allowing you to
+make sure they worked *before* you actually push the results into the
+database.
 
-In SQLite3, transactions require an explicit ``commit`` if the operation belongs
-to the Data Manipulation subset (``INSERT``, ``UPDATE``, ``DELETE``)
+.. class:: incremental small
 
-.. class:: incremental
+In SQLite3, operations that belong to the Data Manipulation subset
+(``INSERT``, ``UPDATE``, ``DELETE``) require an explicit ``commit`` unless
+auto-commit has been enabled.
 
-So far, transactions have been hidden from us by the ``with`` statement.
+.. class:: incremental small
 
-.. class:: incremental
+So far, commits have been hidden from us by the ``with`` statement. The
+context manager takes care of committing when the context closes (at the end 
+of the ``with`` statement)
 
-Let's see the effect of transactions more directly.
+.. class:: incremental small
+
+Let's add some code so we can see the effect of transactions.
 
 Populating the Database
 -----------------------
@@ -338,12 +349,9 @@ Begin by quitting your interpreter and deleting ``books.db``.
 
 .. class:: incremental
 
-Then re-start your interpreter and re-create the database, empty:
+Then re-create the database, empty::
 
-.. code-block:: python
-    :class: incremental small
-
-    >>> import createdb
+    $ python2.7 createdb.py
     Creating schema
 
 Setting Up the Test
@@ -357,21 +365,21 @@ In ``populatedb.py``, add this code at the end of the file:
     :class: small
 
     with sqlite3.connect(DB_FILENAME) as conn1:
-        print "On conn1, before insert:"
+        print "\nOn conn1, before insert:"
         show_authors(conn1)
         
         authors = ([author] for author in AUTHORS_BOOKS.keys())
         cur = conn1.cursor()
         cur.executemany(author_insert, authors)
-        print "On conn1, after insert:"
+        print "\nOn conn1, after insert:"
         show_authors(conn1)
         
         with sqlite3.connect(DB_FILENAME) as conn2:
-            print "On conn2, before commit:"
+            print "\nOn conn2, before commit:"
             show_authors(conn2)
             
             conn1.commit()
-            print "On conn2, after commit:"
+            print "\nOn conn2, after commit:"
             show_authors(conn2)
 
 Running the Test
@@ -403,17 +411,336 @@ Quit your python interpreter and run the ``populatedb.py`` script:
     (4, u'J.R.R. Tolkien')
     (5, u"Madeline L'Engle")
 
-SNIPPETS
+Rollback
 --------
 
-1. Demo transaction rollback by adding a unicode character to Miéville's name
-without fixing the string to be unicode.
+That's all well and good, but what happens if an error occurs?
 
-show how this blows up, then fix it by rolling back the transaction explicitly
+.. class:: incremental
 
-2. Demo subqueries by inserting authors, then inserting books using the author's
-names to look up authorid and insert it
+Transactions can be rolled back in order to wipe out partially completed work.
 
-3. Talk about isolation levels and how to use them. (probably not enough time
-to demo for real)
+.. class:: incremental
 
+Like with commit, using ``connect`` as a context manager in a ``with``
+statement will automatically rollback for exceptions.
+
+.. class:: incremental
+
+Let's rewrite our populatedb script so it explicitly commits or rolls back a
+transaction depending on exceptions occurring
+
+edit populatedb.py (slide 1)
+----------------------------
+
+.. class:: small
+
+First, add the following function above the ``if __name__ == '__main__'``
+block:
+
+.. code-block:: python
+    :class: small
+    
+    def populate_db(conn):
+        authors = ([author] for author in AUTHORS_BOOKS.keys())
+        cur = conn.cursor()
+        cur.executemany(author_insert, authors)
+        
+        for author in AUTHORS_BOOKS.keys():
+            params = ([book, author] for book in AUTHORS_BOOKS[author])
+            cur.executemany(book_insert, params)
+
+
+edit populatedb.py (slide 2)
+----------------------------
+
+.. class:: small
+
+Then, in the runner:
+
+.. code-block:: python
+    :class: small
+
+    with sqlite3.connect(DB_FILENAME) as conn1:
+        with sqlite3.connect(DB_FILENAME) as conn2:
+            try:
+                populate_db(conn1)
+                print "\nauthors and books on conn2 before commit:"
+                show_authors(conn2)
+                show_books(conn2)
+            except Exception:
+                conn1.rollback()
+                print "\nauthors and books on conn2 after rollback:"
+                show_authors(conn2)
+                show_books(conn2)
+                raise
+            else:
+                conn1.commit()
+                print "\nauthors and books on conn2 after commit:"
+                show_authors(conn2)
+                show_books(conn2)
+
+Try it Out
+----------
+
+Remove ``books.db`` and recrete the database, then run our script:
+
+.. class:: small
+
+::
+
+    $ rm books.db
+    $ python2.7 createdb.py
+    Creating schema
+    $ python2.7 populatedb.py
+
+.. class:: small incremental
+
+::
+
+    authors and books on conn2 after rollback:
+    no rows returned
+    no rows returned
+    Traceback (most recent call last):
+      File "populatedb.py", line 57, in <module>
+        populate_db(conn1)
+      File "populatedb.py", line 46, in populate_db
+        cur.executemany(book_insert, params)
+    sqlite3.InterfaceError: Error binding parameter 0 - probably unsupported type.
+
+Oooops, Fix It
+--------------
+
+.. class:: small
+
+Okay, we got an error, and the transaction was rolled back correctly.
+
+.. container:: incremental small
+
+    Open ``utils.py`` and find this:
+
+    .. code-block:: python 
+
+        'Susan Cooper': ["The Dark is Rising", ["The Greenwitch"]],
+
+.. container:: incremental small
+
+    Fix it like so:
+    
+    .. code-block:: python
+    
+        'Susan Cooper': ["The Dark is Rising", "The Greenwitch"],
+
+.. class:: small incremental
+
+It appears that we were attempting to bind a list as a parameter.  Ooops.
+
+Try It Again
+------------
+
+.. container:: small
+
+    Now that the error in our data is repaired, let's try again::
+
+        $ python2.7 populatedb.py
+
+.. class:: small incremental
+
+::
+
+    Reporting authors and books on conn2 before commit:
+    no rows returned
+    no rows returned
+    Reporting authors and books on conn2 after commit:
+    (1, u'China Mieville')
+    (2, u'Frank Herbert')
+    (3, u'Susan Cooper')
+    (4, u'J.R.R. Tolkien')
+    (5, u"Madeline L'Engle")
+    (1, u'Perdido Street Station', 1)
+    (2, u'The Scar', 1)
+    (3, u'King Rat', 1)
+    (4, u'Dune', 2)
+    (5, u"Hellstrom's Hive", 2)
+    (6, u'The Dark is Rising', 3)
+    (7, u'The Greenwitch', 3)
+    (8, u'The Hobbit', 4)
+    (9, u'The Silmarillion', 4)
+    (10, u'A Wrinkle in Time', 5)
+    (11, u'A Swiftly Tilting Planet', 5)
+
+Isolation
+---------
+
+So far, our transactions have been managed.  Either explicitly by us, or 
+automatically by the context manager statement ``with``
+
+.. class:: incremental
+
+This behavior is the result of an aspect of the database connection called the
+**isolation level**. There are three isolation levels available:  
+
+.. class:: incremental small
+
+* **DEFERRED** - Locks the database once changes have begun to be written to
+  the filesystem.  Read-only operations are not blocked
+* **IMMEDIATE** - Locks the database as soon as a transaction is begun.  
+  Read-only operations are not blocked
+* **EXCLUSIVE** - Locks the database as soon as a transaction is begun. This
+  blocks any read-only operations as well
+
+.. class:: incremental
+
+The default level is **DEFERRED**
+
+Autocommit
+----------
+
+The isolation level of a connection can be set with a keyword argument provided
+to the ``connect`` constructor:
+
+.. code-block:: python
+
+    con = sqlite3.connect('mydb.db', isolation_level="EXCLUSIVE")
+
+.. class:: incremental
+
+If you explicitly set this argument to ``None``, you can enable *autocommit*
+behavior.  
+
+.. class:: incremental
+
+If autocommit is enabled, then any DML operations that occur on a connection 
+will be immediately committed
+
+Testing Autocommit
+------------------
+
+.. container:: small
+
+    First, edit ``populatedb.py``:
+
+    .. code-block:: python
+
+        with sqlite3.connect(DB_FILENAME,
+                             isolation_level=None) as conn1:
+            with sqlite3.connect(DB_FILENAME,
+                                 isolation_level=None) as conn2:
+
+.. class:: incremental small
+
+Next, undo your changes to ``utils.py`` so that the error we had will happen
+again
+
+.. container:: incremental small
+
+Finally, delete books.db, recreate it and test the populate script::
+
+    $ rm books.db
+    $ python2.7 createdb.py
+    Creating schema
+    $ python2.7 populatedb.py
+
+The Result
+----------
+
+.. class:: small
+
+::
+
+    authors and books on conn2 after rollback:
+    (1, u'China Mieville')
+    (2, u'Frank Herbert')
+    (3, u'Susan Cooper')
+    (4, u'J.R.R. Tolkien')
+    (5, u"Madeline L'Engle")
+    (1, u'Perdido Street Station', 1)
+    (2, u'The Scar', 1)
+    (3, u'King Rat', 1)
+    (4, u'Dune', 2)
+    (5, u"Hellstrom's Hive", 2)
+    (6, u'The Dark is Rising', 3)
+    Traceback (most recent call last):
+      File "populatedb.py", line 57, in <module>
+        populate_db(conn1)
+      File "populatedb.py", line 46, in populate_db
+        cur.executemany(book_insert, params)
+    sqlite3.InterfaceError: Error binding parameter 0 - probably unsupported type.
+
+EXCLUSIVE isolation
+-------------------
+
+There's not a whole lot of difference between the default "DEFERRED" isolation
+level and "IMMEDIATE"
+
+.. class:: incremental
+
+There's quite a large difference, though for the "EXCLUSIVE" level.  
+
+.. class:: incremental
+
+Open ``threaded.py`` in your editors.  
+
+.. class:: incremental
+
+This is an example of using our existing database population setup in a
+threaded environment.  One thread will load the database, the other will read
+it.  
+
+.. class:: incremental
+
+Take a few moments to review the control flow here.  What should happen?
+
+Testing It
+----------
+
+First, re-fix the bug in our ``utils.py`` file so that we don't get errors
+when running this test.
+
+.. class:: incremental
+
+::
+
+    $ rm books.db
+    $ python2.7 createdb.py
+    Creating schema
+    $ python2.7 threaded.py
+
+The Results
+-----------
+
+.. class:: small
+
+::
+
+    2013-04-30 15:37:37,556 (Writer    ) connecting
+    2013-04-30 15:37:37,556 (Reader    ) waiting to sync
+    2013-04-30 15:37:37,556 (Writer    ) connected
+    2013-04-30 15:37:37,557 (Writer    ) changes made
+    2013-04-30 15:37:37,557 (Writer    ) waiting to sync
+    2013-04-30 15:37:39,556 (MainThread) sending sync event
+    2013-04-30 15:37:39,557 (Reader    ) beginning read
+    2013-04-30 15:37:39,557 (Reader    ) beginning read
+    2013-04-30 15:37:39,557 (Writer    ) PAUSING
+    2013-04-30 15:37:42,559 (Writer    ) CHANGES COMMITTED
+    2013-04-30 15:37:42,590 (Reader    ) selects issued
+    (1, u'China Mieville')
+    (2, u'Frank Herbert')
+    (3, u'Susan Cooper')
+    (4, u'J.R.R. Tolkien')
+    (5, u"Madeline L'Engle")
+    2013-04-30 15:37:42,590 (Reader    ) results fetched
+    2013-04-30 15:37:42,590 (Reader    ) beginning read
+    2013-04-30 15:37:42,590 (Reader    ) selects issued
+    (1, u'Perdido Street Station', 1)
+    (2, u'The Scar', 1)
+    (3, u'King Rat', 1)
+    (4, u'Dune', 2)
+    (5, u"Hellstrom's Hive", 2)
+    (6, u'The Dark is Rising', 3)
+    (7, u'The Greenwitch', 3)
+    (8, u'The Hobbit', 4)
+    (9, u'The Silmarillion', 4)
+    (10, u'A Wrinkle in Time', 5)
+    (11, u'A Swiftly Tilting Planet', 5)
+    2013-04-30 15:37:42,591 (Reader    ) results fetched
