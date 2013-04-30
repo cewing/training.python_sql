@@ -634,12 +634,12 @@ again
 
 .. container:: incremental small
 
-Finally, delete books.db, recreate it and test the populate script::
+    Finally, delete books.db, recreate it and test the populate script::
 
-    $ rm books.db
-    $ python2.7 createdb.py
-    Creating schema
-    $ python2.7 populatedb.py
+        $ rm books.db
+        $ python2.7 createdb.py
+        Creating schema
+        $ python2.7 populatedb.py
 
 The Result
 ----------
@@ -697,14 +697,16 @@ Testing It
 First, re-fix the bug in our ``utils.py`` file so that we don't get errors
 when running this test.
 
-.. class:: incremental
+.. container:: incremental
 
-::
+    Then, kill the old database, recreate it and run our new script:
 
-    $ rm books.db
-    $ python2.7 createdb.py
-    Creating schema
-    $ python2.7 threaded.py
+    ::
+
+        $ rm books.db
+        $ python2.7 createdb.py
+        Creating schema
+        $ python2.7 threaded.py
 
 The Results
 -----------
@@ -744,3 +746,21 @@ The Results
     (10, u'A Wrinkle in Time', 5)
     (11, u'A Swiftly Tilting Planet', 5)
     2013-04-30 15:37:42,591 (Reader    ) results fetched
+
+The End
+-------
+
+There's a lot more about both the DB API and SQLite that could be said.
+
+.. class:: incremental
+
+Unfortunately, that's all the time we have for tonight.
+
+.. class:: incremental
+
+Thanks very much for your attention.
+
+.. class:: incremental big-centered
+
+**Questions?**
+
