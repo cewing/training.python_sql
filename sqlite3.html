@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
+<meta name="version" content="S5 1.1" />
+<title>Using Python's sqlite3 Module</title>
+<link rel="stylesheet" href="ui/uw_pce_theme/pretty.css" type="text/css" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<script src="ui/uw_pce_theme/slides.js" type="text/javascript"></script>
+<link rel="stylesheet" href="ui/uw_pce_theme/slides.css"
+      type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/uw_pce_theme/outline.css"
+      type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/uw_pce_theme/print.css"
+      type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/uw_pce_theme/opera.css"
+      type="text/css" media="projection" id="operaFix" />
+</head>
+<body>
+<div class="layout">
+<div id="controls"></div>
+<div id="currentSlide"></div>
+<div id="header">
+
+</div>
+<div id="footer">
+<h1>Using Python's <tt class="docutils literal">sqlite3</tt> Module</h1>
+<h2><a class="reference external" href="http://github.com/cewing/training.python_sql">View document source</a>.
+</h2>
+</div>
+</div>
+<div class="presentation">
+<div class="slide" id="slide0">
+<h1 class="title">Using Python's <tt class="docutils literal">sqlite3</tt> Module</h1>
+
+<p class="center"><strong>A walk through the Standard Library's reference implementation of DB API 2</strong></p>
+
+</div>
+<div class="slide" id="assumptions">
+<h1>Assumptions</h1>
+<p>I assume that you have a Python interpreter on your own machines. I'll used
+Python 2.7 in my examples, but they will work equally well in 2.6 and almost
+as well in 2.5 or earlier.</p>
+<p class="incremental">I am also assuming that you will be following along. You learn best by doing,
+so <em>do</em>.</p>
+<p class="incremental">A reminder that the resources I'll be referencing are available in the
+<tt class="docutils literal">examples</tt> directory of this repository:</p>
+<pre class="small incremental literal-block">
+$ git clone git://github.com/cewing/training.python_sql.git
+</pre>
+</div>
+<div class="slide" id="getting-started">
+<h1>Getting Started</h1>
+<p>Start by moving to the <tt class="docutils literal">examples</tt> folder, opening a Python interpreter and
+importing the sqlite3 module:</p>
+<p class="small incremental">(create an examples folder if you don't have the repo cloned)</p>
+<pre class="incremental literal-block">
+$ cd examples
+$ python2.7
+Python 2.7.1 (r271:86832, Apr  4 2011, 22:22:40)
+[GCC 4.2.1 (Apple Inc. build 5664)] on darwin
+Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.
+&gt;&gt;&gt; import sqlite3
+</pre>
+</div>
+<div class="slide" id="learning-about-the-module">
+<h1>Learning About the Module</h1>
+<p class="small">We can poke the module a bit to learn about it:</p>
+<pre class="code python incremental small literal-block">
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">sqlite_version</span>
+<span class="literal string">'3.6.12'</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">apilevel</span>
+<span class="literal string">'2.0'</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">paramstyle</span>
+<span class="literal string">'qmark'</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">threadsafety</span>
+<span class="literal number integer">1</span>
+</pre>
+<div class="incremental small container">
+<table border="1" class="docutils">
+<colgroup>
+<col width="12%" />
+<col width="88%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">level</th>
+<th class="head">meaning</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>0</td>
+<td>Not safe</td>
+</tr>
+<tr><td>1</td>
+<td>Safe at Module level only</td>
+</tr>
+<tr><td>2</td>
+<td>Safe at Module and Connection</td>
+</tr>
+<tr><td>3</td>
+<td>Safe at Module, Connection and Cursor</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="slide" id="connecting">
+<h1>Connecting</h1>
+<p>SQLite3 is a file-based system, and it will create the file it needs if one
+doesn't exist. We can create a sqlite3 database just by attempting to connect
+to it:</p>
+<pre class="code python small incremental literal-block">
+<span class="operator">&gt;&gt;&gt;</span> <span class="keyword namespace">import</span> <span class="name namespace">createdb</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">createdb</span><span class="operator">.</span><span class="name">main</span><span class="punctuation">()</span>
+<span class="name">Need</span> <span class="name">to</span> <span class="name">create</span> <span class="name">database</span> <span class="operator word">and</span> <span class="name">schema</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name builtin">reload</span><span class="punctuation">(</span><span class="name">createdb</span><span class="punctuation">)</span>
+<span class="operator">&lt;</span><span class="name">module</span> <span class="literal string">'createdb'</span> <span class="keyword namespace">from</span> <span class="literal string">'createdb.pyc'</span><span class="operator">&gt;</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">createdb</span><span class="operator">.</span><span class="name">main</span><span class="punctuation">()</span>
+<span class="name">Database</span> <span class="name">exists</span><span class="punctuation">,</span> <span class="name">assume</span> <span class="name">schema</span> <span class="name">does</span><span class="punctuation">,</span> <span class="name">too</span><span class="operator">.</span>
+</pre>
+<p class="incremental">Let's see how this works</p>
+</div>
+<div class="slide" id="edit-createdb-py">
+<h1>edit createdb.py</h1>
+<p class="small">Open <tt class="docutils literal">createdb.py</tt> in your favorite text editor:</p>
+<pre class="code python small literal-block">
+<span class="keyword namespace">import</span> <span class="name namespace">os</span>
+<span class="keyword namespace">import</span> <span class="name namespace">sqlite3</span>
+
+<span class="name">DB_FILENAME</span> <span class="operator">=</span> <span class="literal string">'books.db'</span>
+<span class="name">DB_IS_NEW</span> <span class="operator">=</span> <span class="operator word">not</span> <span class="name">os</span><span class="operator">.</span><span class="name">path</span><span class="operator">.</span><span class="name">exists</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span>
+
+<span class="keyword">def</span> <span class="name function">main</span><span class="punctuation">():</span>
+    <span class="name">conn</span> <span class="operator">=</span>  <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span>
+    <span class="keyword">if</span> <span class="name">DB_IS_NEW</span><span class="punctuation">:</span>
+        <span class="keyword">print</span> <span class="literal string">'Need to create database and schema'</span>
+    <span class="keyword">else</span><span class="punctuation">:</span>
+        <span class="keyword">print</span> <span class="literal string">'Database exists, assume schema does, too.'</span>
+    <span class="name">conn</span><span class="operator">.</span><span class="name">close</span><span class="punctuation">()</span>
+
+<span class="keyword">if</span> <span class="name">__name__</span> <span class="operator">==</span> <span class="literal string">'__main__'</span><span class="punctuation">:</span>
+    <span class="name">main</span><span class="punctuation">()</span>
+</pre>
+</div>
+<div class="slide" id="set-up-the-schema">
+<h1>Set Up The Schema</h1>
+<p>Make the following changes to <tt class="docutils literal">createdb.py</tt>:</p>
+<pre class="code python small literal-block">
+<span class="name">DB_FILENAME</span> <span class="operator">=</span> <span class="literal string">'books.db'</span>
+<span class="name">SCHEMA_FILENAME</span> <span class="operator">=</span> <span class="literal string">'ddl.sql'</span> <span class="comment"># &lt;- this is new</span>
+<span class="name">DB_IS_NEW</span> <span class="operator">=</span> <span class="operator word">not</span> <span class="name">os</span><span class="operator">.</span><span class="name">path</span><span class="operator">.</span><span class="name">exists</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span>
+
+<span class="keyword">def</span> <span class="name function">main</span><span class="punctuation">():</span>
+    <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn</span><span class="punctuation">:</span> <span class="comment"># &lt;- context mgr</span>
+        <span class="keyword">if</span> <span class="name">DB_IS_NEW</span><span class="punctuation">:</span> <span class="comment"># A whole new if clause:</span>
+            <span class="keyword">print</span> <span class="literal string">'Creating schema'</span>
+            <span class="keyword">with</span> <span class="name builtin">open</span><span class="punctuation">(</span><span class="name">SCHEMA_FILENAME</span><span class="punctuation">,</span> <span class="literal string">'rt'</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">f</span><span class="punctuation">:</span>
+                <span class="name">schema</span> <span class="operator">=</span> <span class="name">f</span><span class="operator">.</span><span class="name">read</span><span class="punctuation">()</span>
+            <span class="name">conn</span><span class="operator">.</span><span class="name">executescript</span><span class="punctuation">(</span><span class="name">schema</span><span class="punctuation">)</span>
+        <span class="keyword">else</span><span class="punctuation">:</span>
+            <span class="keyword">print</span> <span class="literal string">'Database exists, assume schema does, too.'</span>
+    <span class="comment"># delete the `conn.close()` that was here.</span>
+</pre>
+</div>
+<div class="slide" id="verify-your-work">
+<h1>Verify Your Work</h1>
+<p>Quit your python interpreter and delete the file <tt class="docutils literal">books.db</tt> that should be
+in the <tt class="docutils literal">examples</tt> folder</p>
+<div class="incremental container">
+<p>Then run the script from the command line to try it out:</p>
+<pre class="literal-block">
+$ python2.7 createdb.py
+Creating schema
+$ python2.7 createdb.py
+Database exists, assume schema does, too.
+</pre>
+</div>
+</div>
+<div class="slide" id="introspect-the-database">
+<h1>Introspect the Database</h1>
+<p>Add the following to <tt class="docutils literal">createdb.py</tt>:</p>
+<pre class="code python small literal-block">
+<span class="comment"># in the imports, add this line:</span>
+<span class="keyword namespace">from</span> <span class="name namespace">utils</span> <span class="keyword namespace">import</span> <span class="name">show_table_metadata</span>
+
+<span class="keyword">else</span><span class="punctuation">:</span>
+    <span class="comment"># in the else clause, replace the print statement with this:</span>
+    <span class="keyword">print</span> <span class="literal string">&quot;Database exists, introspecting:&quot;</span>
+    <span class="name">tablenames</span> <span class="operator">=</span> <span class="punctuation">[</span><span class="literal string">'author'</span><span class="punctuation">,</span> <span class="literal string">'book'</span><span class="punctuation">]</span>
+    <span class="name">cursor</span> <span class="operator">=</span> <span class="name">conn</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+    <span class="keyword">for</span> <span class="name">name</span> <span class="operator word">in</span> <span class="name">tablenames</span><span class="punctuation">:</span>
+        <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">&quot;</span>
+        <span class="name">show_table_metadata</span><span class="punctuation">(</span><span class="name">cursor</span><span class="punctuation">,</span> <span class="name">name</span><span class="punctuation">)</span>
+</pre>
+<!-- class: incremental -->
+<p>Then try running <tt class="docutils literal">python2.7 createdb.py</tt> again</p>
+</div>
+<div class="slide" id="my-results">
+<h1>My Results</h1>
+<pre class="small literal-block">
+$ python2.7 createdb.py
+Table Metadata for 'author':
+cid        | name       | type       | notnull    | dflt_value | pk         |
+-----------+------------+------------+------------+------------+------------+-
+0          | authorid   | INTEGER    | 1          | None       | 1          |
+-----------+------------+------------+------------+------------+------------+-
+1          | name       | TEXT       | 0          | None       | 0          |
+-----------+------------+------------+------------+------------+------------+-
+
+
+Table Metadata for 'book':
+cid        | name       | type       | notnull    | dflt_value | pk         |
+-----------+------------+------------+------------+------------+------------+-
+0          | bookid     | INTEGER    | 1          | None       | 1          |
+-----------+------------+------------+------------+------------+------------+-
+1          | title      | TEXT       | 0          | None       | 0          |
+-----------+------------+------------+------------+------------+------------+-
+2          | author     | INTEGER    | 1          | None       | 0          |
+-----------+------------+------------+------------+------------+------------+-
+</pre>
+</div>
+<div class="slide" id="inserting-data">
+<h1>Inserting Data</h1>
+<p>Let's load up some data. Fire up your interpreter and type:</p>
+<pre class="code python small literal-block">
+<span class="operator">&gt;&gt;&gt;</span> <span class="keyword namespace">import</span> <span class="name namespace">sqlite3</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">insert</span> <span class="operator">=</span> <span class="literal string">&quot;&quot;&quot;
+... INSERT INTO author (name) VALUES(&quot;Iain M. Banks&quot;);&quot;&quot;&quot;</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="literal string">&quot;books.db&quot;</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn</span><span class="punctuation">:</span>
+<span class="operator">...</span>     <span class="name">cur</span> <span class="operator">=</span> <span class="name">conn</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">execute</span><span class="punctuation">(</span><span class="name">insert</span><span class="punctuation">)</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">rowcount</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">close</span><span class="punctuation">()</span>
+<span class="operator">...</span>
+<span class="operator">&lt;</span><span class="name">sqlite3</span><span class="operator">.</span><span class="name">Cursor</span> <span class="name builtin">object</span> <span class="name">at</span> <span class="literal number hex">0x10046e880</span><span class="operator">&gt;</span>
+<span class="literal number integer">1</span>
+<span class="operator">&gt;&gt;&gt;</span>
+</pre>
+<p class="incremental">Did that work?</p>
+</div>
+<div class="slide" id="querying-data">
+<h1>Querying Data</h1>
+<p>Let's query our database to find out:</p>
+<pre class="code python small literal-block">
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">query</span> <span class="operator">=</span> <span class="literal string">&quot;&quot;&quot;
+... SELECT * from author;&quot;&quot;&quot;</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="literal string">&quot;books.db&quot;</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn</span><span class="punctuation">:</span>
+<span class="operator">...</span>     <span class="name">cur</span> <span class="operator">=</span> <span class="name">conn</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">execute</span><span class="punctuation">(</span><span class="name">query</span><span class="punctuation">)</span>
+<span class="operator">...</span>     <span class="name">rows</span> <span class="operator">=</span> <span class="name">cur</span><span class="operator">.</span><span class="name">fetchall</span><span class="punctuation">()</span>
+<span class="operator">...</span>     <span class="keyword">for</span> <span class="name">row</span> <span class="operator word">in</span> <span class="name">rows</span><span class="punctuation">:</span>
+<span class="operator">...</span>         <span class="keyword">print</span> <span class="name">row</span>
+<span class="operator">...</span>
+<span class="operator">&lt;</span><span class="name">sqlite3</span><span class="operator">.</span><span class="name">Cursor</span> <span class="name builtin">object</span> <span class="name">at</span> <span class="literal number hex">0x10046e8f0</span><span class="operator">&gt;</span>
+<span class="punctuation">(</span><span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal string">u'Iain M. Banks'</span><span class="punctuation">)</span>
+</pre>
+<p class="incremental">Alright!  We've got data in there.  Let's make it more efficient</p>
+</div>
+<div class="slide" id="parameterized-statements">
+<h1>Parameterized Statements</h1>
+<p>Try this:</p>
+<pre class="code python small literal-block">
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">insert</span> <span class="operator">=</span> <span class="literal string">&quot;&quot;&quot;
+... INSERT INTO author (name) VALUES(?);&quot;&quot;&quot;</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">authors</span> <span class="operator">=</span> <span class="punctuation">[[</span><span class="literal string">&quot;China Mieville&quot;</span><span class="punctuation">],</span> <span class="punctuation">[</span><span class="literal string">&quot;Frank Herbert&quot;</span><span class="punctuation">],</span>
+<span class="operator">...</span> <span class="punctuation">[</span><span class="literal string">&quot;J.R.R. Tolkien&quot;</span><span class="punctuation">],</span> <span class="punctuation">[</span><span class="literal string">&quot;Susan Cooper&quot;</span><span class="punctuation">],</span> <span class="punctuation">[</span><span class="literal string">&quot;Madeline L'Engle&quot;</span><span class="punctuation">]]</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="literal string">&quot;books.db&quot;</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn</span><span class="punctuation">:</span>
+<span class="operator">...</span>     <span class="name">cur</span> <span class="operator">=</span> <span class="name">conn</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">executemany</span><span class="punctuation">(</span><span class="name">insert</span><span class="punctuation">,</span> <span class="name">authors</span><span class="punctuation">)</span>
+<span class="operator">...</span>     <span class="keyword">print</span> <span class="name">cur</span><span class="operator">.</span><span class="name">rowcount</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">close</span><span class="punctuation">()</span>
+<span class="operator">...</span>
+<span class="operator">&lt;</span><span class="name">sqlite3</span><span class="operator">.</span><span class="name">Cursor</span> <span class="name builtin">object</span> <span class="name">at</span> <span class="literal number hex">0x10046e8f0</span><span class="operator">&gt;</span>
+<span class="literal number integer">5</span>
+</pre>
+</div>
+<div class="slide" id="check-your-work">
+<h1>Check Your Work</h1>
+<p>Again, query the database:</p>
+<pre class="code python small literal-block">
+<span class="operator">&gt;&gt;&gt;</span> <span class="name">query</span> <span class="operator">=</span> <span class="literal string">&quot;&quot;&quot;
+... SELECT * from author;&quot;&quot;&quot;</span>
+<span class="operator">&gt;&gt;&gt;</span> <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="literal string">&quot;books.db&quot;</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn</span><span class="punctuation">:</span>
+<span class="operator">...</span>     <span class="name">cur</span> <span class="operator">=</span> <span class="name">conn</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+<span class="operator">...</span>     <span class="name">cur</span><span class="operator">.</span><span class="name">execute</span><span class="punctuation">(</span><span class="name">query</span><span class="punctuation">)</span>
+<span class="operator">...</span>     <span class="name">rows</span> <span class="operator">=</span> <span class="name">cur</span><span class="operator">.</span><span class="name">fetchall</span><span class="punctuation">()</span>
+<span class="operator">...</span>     <span class="keyword">for</span> <span class="name">row</span> <span class="operator word">in</span> <span class="name">rows</span><span class="punctuation">:</span>
+<span class="operator">...</span>         <span class="keyword">print</span> <span class="name">row</span>
+<span class="operator">...</span>
+<span class="operator">&lt;</span><span class="name">sqlite3</span><span class="operator">.</span><span class="name">Cursor</span> <span class="name builtin">object</span> <span class="name">at</span> <span class="literal number hex">0x10046e8f0</span><span class="operator">&gt;</span>
+<span class="punctuation">(</span><span class="literal number integer">1</span><span class="punctuation">,</span> <span class="literal string">u'Iain M. Banks'</span><span class="punctuation">)</span>
+<span class="operator">...</span>
+<span class="punctuation">(</span><span class="literal number integer">4</span><span class="punctuation">,</span> <span class="literal string">u'J.R.R. Tolkien'</span><span class="punctuation">)</span>
+<span class="punctuation">(</span><span class="literal number integer">5</span><span class="punctuation">,</span> <span class="literal string">u'Susan Cooper'</span><span class="punctuation">)</span>
+<span class="punctuation">(</span><span class="literal number integer">6</span><span class="punctuation">,</span> <span class="literal string">u&quot;Madeline L'Engle&quot;</span><span class="punctuation">)</span>
+</pre>
+</div>
+<div class="slide" id="transactions">
+<h1>Transactions</h1>
+<p class="small">Transactions let you group a number of operations together, allowing you to
+make sure they worked <em>before</em> you actually push the results into the
+database.</p>
+<p class="incremental small">In SQLite3, operations that belong to the Data Manipulation subset
+(<tt class="docutils literal">INSERT</tt>, <tt class="docutils literal">UPDATE</tt>, <tt class="docutils literal">DELETE</tt>) require an explicit <tt class="docutils literal">commit</tt> unless
+auto-commit has been enabled.</p>
+<p class="incremental small">So far, commits have been hidden from us by the <tt class="docutils literal">with</tt> statement. The
+context manager takes care of committing when the context closes (at the end
+of the <tt class="docutils literal">with</tt> statement)</p>
+<p class="incremental small">Let's add some code so we can see the effect of transactions.</p>
+</div>
+<div class="slide" id="populating-the-database">
+<h1>Populating the Database</h1>
+<p>Let's start by seeing what happens when you try to look for newly added data
+before the <tt class="docutils literal">insert</tt> transaction is committed.</p>
+<p class="incremental">Begin by quitting your interpreter and deleting <tt class="docutils literal">books.db</tt>.</p>
+<p class="incremental">Then re-create the database, empty:</p>
+<pre class="literal-block">
+$ python2.7 createdb.py
+Creating schema
+</pre>
+</div>
+<div class="slide" id="setting-up-the-test">
+<h1>Setting Up the Test</h1>
+<p class="small">In <tt class="docutils literal">populatedb.py</tt>, add this code at the end of the file:</p>
+<pre class="code python small literal-block">
+<span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn1</span><span class="punctuation">:</span>
+    <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">On conn1, before insert:&quot;</span>
+    <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn1</span><span class="punctuation">)</span>
+
+    <span class="name">authors</span> <span class="operator">=</span> <span class="punctuation">([</span><span class="name">author</span><span class="punctuation">]</span> <span class="keyword">for</span> <span class="name">author</span> <span class="operator word">in</span> <span class="name">AUTHORS_BOOKS</span><span class="operator">.</span><span class="name">keys</span><span class="punctuation">())</span>
+    <span class="name">cur</span> <span class="operator">=</span> <span class="name">conn1</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+    <span class="name">cur</span><span class="operator">.</span><span class="name">executemany</span><span class="punctuation">(</span><span class="name">author_insert</span><span class="punctuation">,</span> <span class="name">authors</span><span class="punctuation">)</span>
+    <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">On conn1, after insert:&quot;</span>
+    <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn1</span><span class="punctuation">)</span>
+
+    <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn2</span><span class="punctuation">:</span>
+        <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">On conn2, before commit:&quot;</span>
+        <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+
+        <span class="name">conn1</span><span class="operator">.</span><span class="name">commit</span><span class="punctuation">()</span>
+        <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">On conn2, after commit:&quot;</span>
+        <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+</pre>
+</div>
+<div class="slide" id="running-the-test">
+<h1>Running the Test</h1>
+<p class="small">Quit your python interpreter and run the <tt class="docutils literal">populatedb.py</tt> script:</p>
+<pre class="small literal-block">
+$ python2.7 populatedb.py
+On conn1, before insert:
+no rows returned
+On conn1, after insert:
+(1, u'China Mieville')
+(2, u'Frank Herbert')
+(3, u'Susan Cooper')
+(4, u'J.R.R. Tolkien')
+(5, u&quot;Madeline L'Engle&quot;)
+On conn2, before commit:
+no rows returned
+On conn2, after commit:
+(1, u'China Mieville')
+(2, u'Frank Herbert')
+(3, u'Susan Cooper')
+(4, u'J.R.R. Tolkien')
+(5, u&quot;Madeline L'Engle&quot;)
+</pre>
+</div>
+<div class="slide" id="rollback">
+<h1>Rollback</h1>
+<p>That's all well and good, but what happens if an error occurs?</p>
+<p class="incremental">Transactions can be rolled back in order to wipe out partially completed work.</p>
+<p class="incremental">Like with commit, using <tt class="docutils literal">connect</tt> as a context manager in a <tt class="docutils literal">with</tt>
+statement will automatically rollback for exceptions.</p>
+<p class="incremental">Let's rewrite our populatedb script so it explicitly commits or rolls back a
+transaction depending on exceptions occurring</p>
+</div>
+<div class="slide" id="edit-populatedb-py-slide-1">
+<h1>edit populatedb.py (slide 1)</h1>
+<p class="small">First, add the following function above the <tt class="docutils literal">if __name__ == '__main__'</tt>
+block:</p>
+<pre class="code python small literal-block">
+<span class="keyword">def</span> <span class="name function">populate_db</span><span class="punctuation">(</span><span class="name">conn</span><span class="punctuation">):</span>
+    <span class="name">authors</span> <span class="operator">=</span> <span class="punctuation">([</span><span class="name">author</span><span class="punctuation">]</span> <span class="keyword">for</span> <span class="name">author</span> <span class="operator word">in</span> <span class="name">AUTHORS_BOOKS</span><span class="operator">.</span><span class="name">keys</span><span class="punctuation">())</span>
+    <span class="name">cur</span> <span class="operator">=</span> <span class="name">conn</span><span class="operator">.</span><span class="name">cursor</span><span class="punctuation">()</span>
+    <span class="name">cur</span><span class="operator">.</span><span class="name">executemany</span><span class="punctuation">(</span><span class="name">author_insert</span><span class="punctuation">,</span> <span class="name">authors</span><span class="punctuation">)</span>
+
+    <span class="keyword">for</span> <span class="name">author</span> <span class="operator word">in</span> <span class="name">AUTHORS_BOOKS</span><span class="operator">.</span><span class="name">keys</span><span class="punctuation">():</span>
+        <span class="name">params</span> <span class="operator">=</span> <span class="punctuation">([</span><span class="name">book</span><span class="punctuation">,</span> <span class="name">author</span><span class="punctuation">]</span> <span class="keyword">for</span> <span class="name">book</span> <span class="operator word">in</span> <span class="name">AUTHORS_BOOKS</span><span class="punctuation">[</span><span class="name">author</span><span class="punctuation">])</span>
+        <span class="name">cur</span><span class="operator">.</span><span class="name">executemany</span><span class="punctuation">(</span><span class="name">book_insert</span><span class="punctuation">,</span> <span class="name">params</span><span class="punctuation">)</span>
+</pre>
+</div>
+<div class="slide" id="edit-populatedb-py-slide-2">
+<h1>edit populatedb.py (slide 2)</h1>
+<p class="small">Then, in the runner:</p>
+<pre class="code python small literal-block">
+<span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn1</span><span class="punctuation">:</span>
+    <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn2</span><span class="punctuation">:</span>
+        <span class="keyword">try</span><span class="punctuation">:</span>
+            <span class="name">populate_db</span><span class="punctuation">(</span><span class="name">conn1</span><span class="punctuation">)</span>
+            <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">authors and books on conn2 before commit:&quot;</span>
+            <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+            <span class="name">show_books</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+        <span class="keyword">except</span> <span class="name exception">Exception</span><span class="punctuation">:</span>
+            <span class="name">conn1</span><span class="operator">.</span><span class="name">rollback</span><span class="punctuation">()</span>
+            <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">authors and books on conn2 after rollback:&quot;</span>
+            <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+            <span class="name">show_books</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+            <span class="keyword">raise</span>
+        <span class="keyword">else</span><span class="punctuation">:</span>
+            <span class="name">conn1</span><span class="operator">.</span><span class="name">commit</span><span class="punctuation">()</span>
+            <span class="keyword">print</span> <span class="literal string">&quot;</span><span class="literal string escape">\n</span><span class="literal string">authors and books on conn2 after commit:&quot;</span>
+            <span class="name">show_authors</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+            <span class="name">show_books</span><span class="punctuation">(</span><span class="name">conn2</span><span class="punctuation">)</span>
+</pre>
+</div>
+<div class="slide" id="try-it-out">
+<h1>Try it Out</h1>
+<p>Remove <tt class="docutils literal">books.db</tt> and recrete the database, then run our script:</p>
+<pre class="small literal-block">
+$ rm books.db
+$ python2.7 createdb.py
+Creating schema
+$ python2.7 populatedb.py
+</pre>
+<pre class="small incremental literal-block">
+authors and books on conn2 after rollback:
+no rows returned
+no rows returned
+Traceback (most recent call last):
+  File &quot;populatedb.py&quot;, line 57, in &lt;module&gt;
+    populate_db(conn1)
+  File &quot;populatedb.py&quot;, line 46, in populate_db
+    cur.executemany(book_insert, params)
+sqlite3.InterfaceError: Error binding parameter 0 - probably unsupported type.
+</pre>
+</div>
+<div class="slide" id="oooops-fix-it">
+<h1>Oooops, Fix It</h1>
+<p class="small">Okay, we got an error, and the transaction was rolled back correctly.</p>
+<div class="incremental small container">
+<p>Open <tt class="docutils literal">utils.py</tt> and find this:</p>
+<pre class="code python literal-block">
+<span class="literal string">'Susan Cooper'</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="literal string">&quot;The Dark is Rising&quot;</span><span class="punctuation">,</span> <span class="punctuation">[</span><span class="literal string">&quot;The Greenwitch&quot;</span><span class="punctuation">]],</span>
+</pre>
+</div>
+<div class="incremental small container">
+<p>Fix it like so:</p>
+<pre class="code python literal-block">
+<span class="literal string">'Susan Cooper'</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="literal string">&quot;The Dark is Rising&quot;</span><span class="punctuation">,</span> <span class="literal string">&quot;The Greenwitch&quot;</span><span class="punctuation">],</span>
+</pre>
+</div>
+<p class="small incremental">It appears that we were attempting to bind a list as a parameter.  Ooops.</p>
+</div>
+<div class="slide" id="try-it-again">
+<h1>Try It Again</h1>
+<div class="small container">
+<p>Now that the error in our data is repaired, let's try again:</p>
+<pre class="literal-block">
+$ python2.7 populatedb.py
+</pre>
+</div>
+<pre class="small incremental literal-block">
+Reporting authors and books on conn2 before commit:
+no rows returned
+no rows returned
+Reporting authors and books on conn2 after commit:
+(1, u'China Mieville')
+(2, u'Frank Herbert')
+(3, u'Susan Cooper')
+(4, u'J.R.R. Tolkien')
+(5, u&quot;Madeline L'Engle&quot;)
+(1, u'Perdido Street Station', 1)
+(2, u'The Scar', 1)
+(3, u'King Rat', 1)
+(4, u'Dune', 2)
+(5, u&quot;Hellstrom's Hive&quot;, 2)
+(6, u'The Dark is Rising', 3)
+(7, u'The Greenwitch', 3)
+(8, u'The Hobbit', 4)
+(9, u'The Silmarillion', 4)
+(10, u'A Wrinkle in Time', 5)
+(11, u'A Swiftly Tilting Planet', 5)
+</pre>
+</div>
+<div class="slide" id="isolation">
+<h1>Isolation</h1>
+<p>So far, our transactions have been managed.  Either explicitly by us, or
+automatically by the context manager statement <tt class="docutils literal">with</tt></p>
+<p class="incremental">This behavior is the result of an aspect of the database connection called the
+<strong>isolation level</strong>. There are three isolation levels available:</p>
+<ul class="incremental small simple">
+<li><strong>DEFERRED</strong> - Locks the database once changes have begun to be written to
+the filesystem.  Read-only operations are not blocked</li>
+<li><strong>IMMEDIATE</strong> - Locks the database as soon as a transaction is begun.
+Read-only operations are not blocked</li>
+<li><strong>EXCLUSIVE</strong> - Locks the database as soon as a transaction is begun. This
+blocks any read-only operations as well</li>
+</ul>
+<p class="incremental">The default level is <strong>DEFERRED</strong></p>
+</div>
+<div class="slide" id="autocommit">
+<h1>Autocommit</h1>
+<p>The isolation level of a connection can be set with a keyword argument provided
+to the <tt class="docutils literal">connect</tt> constructor:</p>
+<pre class="code python literal-block">
+<span class="name">con</span> <span class="operator">=</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="literal string">'mydb.db'</span><span class="punctuation">,</span> <span class="name">isolation_level</span><span class="operator">=</span><span class="literal string">&quot;EXCLUSIVE&quot;</span><span class="punctuation">)</span>
+</pre>
+<p class="incremental">If you explicitly set this argument to <tt class="docutils literal">None</tt>, you can enable <em>autocommit</em>
+behavior.</p>
+<p class="incremental">If autocommit is enabled, then any DML operations that occur on a connection
+will be immediately committed</p>
+</div>
+<div class="slide" id="testing-autocommit">
+<h1>Testing Autocommit</h1>
+<div class="small container">
+<p>First, edit <tt class="docutils literal">populatedb.py</tt>:</p>
+<pre class="code python literal-block">
+<span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">,</span>
+                     <span class="name">isolation_level</span><span class="operator">=</span><span class="name builtin pseudo">None</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn1</span><span class="punctuation">:</span>
+    <span class="keyword">with</span> <span class="name">sqlite3</span><span class="operator">.</span><span class="name">connect</span><span class="punctuation">(</span><span class="name">DB_FILENAME</span><span class="punctuation">,</span>
+                         <span class="name">isolation_level</span><span class="operator">=</span><span class="name builtin pseudo">None</span><span class="punctuation">)</span> <span class="keyword">as</span> <span class="name">conn2</span><span class="punctuation">:</span>
+</pre>
+</div>
+<p class="incremental small">Next, undo your changes to <tt class="docutils literal">utils.py</tt> so that the error we had will happen
+again</p>
+<div class="incremental small container">
+<p>Finally, delete books.db, recreate it and test the populate script:</p>
+<pre class="literal-block">
+$ rm books.db
+$ python2.7 createdb.py
+Creating schema
+$ python2.7 populatedb.py
+</pre>
+</div>
+</div>
+<div class="slide" id="the-result">
+<h1>The Result</h1>
+<pre class="small literal-block">
+authors and books on conn2 after rollback:
+(1, u'China Mieville')
+(2, u'Frank Herbert')
+(3, u'Susan Cooper')
+(4, u'J.R.R. Tolkien')
+(5, u&quot;Madeline L'Engle&quot;)
+(1, u'Perdido Street Station', 1)
+(2, u'The Scar', 1)
+(3, u'King Rat', 1)
+(4, u'Dune', 2)
+(5, u&quot;Hellstrom's Hive&quot;, 2)
+(6, u'The Dark is Rising', 3)
+Traceback (most recent call last):
+  File &quot;populatedb.py&quot;, line 57, in &lt;module&gt;
+    populate_db(conn1)
+  File &quot;populatedb.py&quot;, line 46, in populate_db
+    cur.executemany(book_insert, params)
+sqlite3.InterfaceError: Error binding parameter 0 - probably unsupported type.
+</pre>
+</div>
+<div class="slide" id="exclusive-isolation">
+<h1>EXCLUSIVE isolation</h1>
+<p>There's not a whole lot of difference between the default &quot;DEFERRED&quot; isolation
+level and &quot;IMMEDIATE&quot;</p>
+<p class="incremental">There's quite a large difference, though for the &quot;EXCLUSIVE&quot; level.</p>
+<p class="incremental">Open <tt class="docutils literal">threaded.py</tt> in your editors.</p>
+<p class="incremental">This is an example of using our existing database population setup in a
+threaded environment.  One thread will load the database, the other will read
+it.</p>
+<p class="incremental">Take a few moments to review the control flow here.  What should happen?</p>
+</div>
+<div class="slide" id="testing-it">
+<h1>Testing It</h1>
+<p>First, re-fix the bug in our <tt class="docutils literal">utils.py</tt> file so that we don't get errors
+when running this test.</p>
+<div class="incremental container">
+<p>Then, kill the old database, recreate it and run our new script:</p>
+<pre class="literal-block">
+$ rm books.db
+$ python2.7 createdb.py
+Creating schema
+$ python2.7 threaded.py
+</pre>
+</div>
+</div>
+<div class="slide" id="the-results">
+<h1>The Results</h1>
+<pre class="small literal-block">
+2013-04-30 15:37:37,556 (Writer    ) connecting
+2013-04-30 15:37:37,556 (Reader    ) waiting to sync
+2013-04-30 15:37:37,556 (Writer    ) connected
+2013-04-30 15:37:37,557 (Writer    ) changes made
+2013-04-30 15:37:37,557 (Writer    ) waiting to sync
+2013-04-30 15:37:39,556 (MainThread) sending sync event
+2013-04-30 15:37:39,557 (Reader    ) beginning read
+2013-04-30 15:37:39,557 (Reader    ) beginning read
+2013-04-30 15:37:39,557 (Writer    ) PAUSING
+2013-04-30 15:37:42,559 (Writer    ) CHANGES COMMITTED
+2013-04-30 15:37:42,590 (Reader    ) selects issued
+(1, u'China Mieville')
+(2, u'Frank Herbert')
+(3, u'Susan Cooper')
+(4, u'J.R.R. Tolkien')
+(5, u&quot;Madeline L'Engle&quot;)
+2013-04-30 15:37:42,590 (Reader    ) results fetched
+2013-04-30 15:37:42,590 (Reader    ) beginning read
+2013-04-30 15:37:42,590 (Reader    ) selects issued
+(1, u'Perdido Street Station', 1)
+(2, u'The Scar', 1)
+(3, u'King Rat', 1)
+(4, u'Dune', 2)
+(5, u&quot;Hellstrom's Hive&quot;, 2)
+(6, u'The Dark is Rising', 3)
+(7, u'The Greenwitch', 3)
+(8, u'The Hobbit', 4)
+(9, u'The Silmarillion', 4)
+(10, u'A Wrinkle in Time', 5)
+(11, u'A Swiftly Tilting Planet', 5)
+2013-04-30 15:37:42,591 (Reader    ) results fetched
+</pre>
+</div>
+<div class="slide" id="the-end">
+<h1>The End</h1>
+<p>There's a lot more about both the DB API and SQLite that could be said.</p>
+<p class="incremental">Unfortunately, that's all the time we have for tonight.</p>
+<p class="incremental">Thanks very much for your attention.</p>
+<p class="incremental big-centered"><strong>Questions?</strong></p>
+</div>
+</div>
+</body>
+</html>

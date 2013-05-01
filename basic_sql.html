@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
+<meta name="version" content="S5 1.1" />
+<title>Basic SQL</title>
+<link rel="stylesheet" href="ui/uw_pce_theme/pretty.css" type="text/css" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<script src="ui/uw_pce_theme/slides.js" type="text/javascript"></script>
+<link rel="stylesheet" href="ui/uw_pce_theme/slides.css"
+      type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/uw_pce_theme/outline.css"
+      type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/uw_pce_theme/print.css"
+      type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/uw_pce_theme/opera.css"
+      type="text/css" media="projection" id="operaFix" />
+</head>
+<body>
+<div class="layout">
+<div id="controls"></div>
+<div id="currentSlide"></div>
+<div id="header">
+
+</div>
+<div id="footer">
+<h1>Basic SQL</h1>
+<h2><a class="reference external" href="http://github.com/cewing/training.python_sql">View document source</a>.
+</h2>
+</div>
+</div>
+<div class="presentation">
+<div class="slide" id="slide0">
+<h1 class="title">Basic SQL</h1>
+
+<p class="center">A quick overview of SQL: History, Concepts, and Syntax</p>
+
+</div>
+<div class="slide" id="what-is-sql">
+<h1>What is SQL</h1>
+<p class="center"><strong>SQL == Structured Query Language</strong></p>
+<ul class="incremental simple">
+<li>First invented in the early 1970s at IBM</li>
+<li>Based on <em>Relational Algebra</em> and <em>Tuple Relational Calculus</em></li>
+<li>Used to get at data stored in their <tt class="docutils literal"><span class="pre">System-R</span></tt> database management system</li>
+<li>Picked up by <em>Relational Software</em> (now <em>Oracle</em>) in the late 1970s</li>
+<li><tt class="docutils literal">Oracle V2</tt>, the first commercial Relational Database released in 1979</li>
+<li>IBM followed with <tt class="docutils literal">System/38</tt>, <tt class="docutils literal">SQL/DS</tt> and <tt class="docutils literal">DB2</tt> between 1979 and
+1983</li>
+</ul>
+<p class="image-credit">source: <a class="reference external" href="http://en.wikipedia.org/wiki/SQL">http://en.wikipedia.org/wiki/SQL</a></p>
+</div>
+<div class="slide" id="id1">
+<h1>What is SQL</h1>
+<p>SQL, and Relational Database Management Systems (RDBMS) have been the de-facto
+standard for data persistence for 30+ years</p>
+<p class="incremental">Currently, there are more than 100 RDBMS available, both proprietary and
+open-source.</p>
+<p class="incremental">Most, if not all, include some implementation of SQL as their query language.</p>
+<p class="image-credit">source: <a class="reference external" href="http://en.wikipedia.org/wiki/List_of_relational_database_management_systems">http://en.wikipedia.org/wiki/List_of_relational_database_management_systems</a></p>
+</div>
+<div class="slide" id="big-players-in-sql">
+<h1>Big Players in SQL</h1>
+<p>There are a number of RDBMS that you will run into regularly</p>
+<p><strong>Commercial / Proprietary</strong></p>
+<ul class="incremental small simple">
+<li>MS SQL Server</li>
+<li>Oracle</li>
+<li>MySQL Enterprise (Oracle)</li>
+</ul>
+<p><strong>Open Source</strong></p>
+<ul class="incremental small simple">
+<li>PostgreSQL</li>
+<li>MariaDB (MySQL community)</li>
+<li>SQLite</li>
+</ul>
+</div>
+<div class="slide" id="sql-rdbms-concepts-tables">
+<h1>SQL/RDBMS Concepts - Tables</h1>
+<p class="incremental">A table consists of <em>rows</em> (also called <em>records</em>) and <em>columns</em></p>
+<p class="incremental">Each row/record represents a single item</p>
+<p class="incremental">Each column represents a data point</p>
+<p class="incremental">Most tables will have one column which is considered the <em>primary key</em></p>
+<p class="incremental">This value will uniquely identify a single row out of all the rows in the
+table</p>
+</div>
+<div class="slide" id="an-example">
+<h1>An Example</h1>
+<p>Here is an example table which represents people in a system:</p>
+<table border="1" class="incremental center docutils">
+<colgroup>
+<col width="10%" />
+<col width="31%" />
+<col width="31%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">username</th>
+<th class="head">first_name</th>
+<th class="head">last_name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>wont_u_b</td>
+<td>Fred</td>
+<td>Rogers</td>
+</tr>
+<tr><td>4</td>
+<td>neuroman</td>
+<td>William</td>
+<td>Gibson</td>
+</tr>
+<tr><td>5</td>
+<td>race</td>
+<td>Roger</td>
+<td>Bannon</td>
+</tr>
+<tr><td>6</td>
+<td>harrywho</td>
+<td>Harry</td>
+<td>Houdini</td>
+</tr>
+<tr><td>7</td>
+<td>whitequeen</td>
+<td>Emma</td>
+<td>Frost</td>
+</tr>
+<tr><td>8</td>
+<td>shadowcat</td>
+<td>Kitty</td>
+<td>Pryde</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="slide" id="sql-rdbms-concepts-relations">
+<h1>SQL/RDBMS Concepts - Relations</h1>
+<p>You can <em>model</em> things using tables like this.  Adding columns for all sorts
+of different data points</p>
+<p class="incremental">But what happens when not all of the items in a table share the <em>same</em> data
+points?</p>
+<p class="incremental">Or what if some of the items need to have more than one of a particular data
+point?</p>
+<p class="incremental">Leaving columns empty in a row wastes memory and slows down querying.  Use
+<em>relations</em> to solve these types of problems</p>
+</div>
+<div class="slide" id="types-of-relations">
+<h1>Types of Relations</h1>
+<p>There are three basic types of relationships:</p>
+<dl class="incremental small docutils">
+<dt>One-to-one relationships</dt>
+<dd>Best used to represent aspects of an item which are not <em>core</em> to it. Like
+user (id, password) -&gt; user_profile (preferences, name, address)</dd>
+</dl>
+<dl class="incremental small docutils">
+<dt>Many-to-one relationships</dt>
+<dd>Used to represent relationships of ownership or belonging. Like product -&gt;
+manufacturer or book -&gt; author</dd>
+</dl>
+<dl class="incremental small docutils">
+<dt>Many-to-many relationships</dt>
+<dd>Used to represent associations or membership.  Like users -&gt; groups or
+items -&gt; orders</dd>
+</dl>
+</div>
+<div class="slide" id="sql-relations-1">
+<h1>SQL Relations - ∞ -&gt; 1</h1>
+<p>Many-to-one relationships are modelled using <em>Foreign Keys</em></p>
+<p class="incremental">The <em>many</em> table has a column which holds the <em>primary key</em> of the row from
+the <em>one</em> table:</p>
+<p class="incremental">Consider the relationship of books to author:</p>
+</div>
+<div class="slide" id="books-author">
+<h1>Books -&gt; Author</h1>
+<p><strong>People</strong>:</p>
+<table border="1" class="small docutils">
+<colgroup>
+<col width="11%" />
+<col width="29%" />
+<col width="32%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">username</th>
+<th class="head">first_name</th>
+<th class="head">last_name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>4</td>
+<td>neuroman</td>
+<td>William</td>
+<td>Gibson</td>
+</tr>
+<tr><td>6</td>
+<td>harrywho</td>
+<td>Harry</td>
+<td>Houdini</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Books</strong>:</p>
+<table border="1" class="small docutils">
+<colgroup>
+<col width="9%" />
+<col width="74%" />
+<col width="17%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">title</th>
+<th class="head">author</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Miracle Mongers and their Methods</td>
+<td>6</td>
+</tr>
+<tr><td>2</td>
+<td>The Right Way to Do Wrong</td>
+<td>6</td>
+</tr>
+<tr><td>3</td>
+<td>Pattern Recognition</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="slide" id="sql-relations-1-1">
+<h1>SQL Relations - 1 -&gt; 1</h1>
+<p>One-to-one relationships are really just a special case of Many-to-one, and
+are also modelled with <em>Foreign Keys</em></p>
+<p class="incremental">In this case, the column on the related table which holds the <em>primary key</em> of
+the target table has an additional <em>unique</em> constraint, so that only one
+related record can exist</p>
+<p class="incremental">The classic purpose is for data that doesn't need to be accessed often, and
+is unique per record</p>
+<p class="incremental">Consider the example of birth records:</p>
+</div>
+<div class="slide" id="birth-record-person">
+<h1>Birth Record -&gt; Person</h1>
+<p><strong>People</strong>:</p>
+<table border="1" class="small docutils">
+<colgroup>
+<col width="11%" />
+<col width="29%" />
+<col width="32%" />
+<col width="29%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">username</th>
+<th class="head">first_name</th>
+<th class="head">last_name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>wont_u_b</td>
+<td>Fred</td>
+<td>Rogers</td>
+</tr>
+<tr><td>4</td>
+<td>neuroman</td>
+<td>William</td>
+<td>Gibson</td>
+</tr>
+<tr><td>5</td>
+<td>race</td>
+<td>Roger</td>
+<td>Bannon</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Birth Records</strong>:</p>
+<table border="1" class="small docutils">
+<colgroup>
+<col width="10%" />
+<col width="19%" />
+<col width="38%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">person</th>
+<th class="head">date</th>
+<th class="head">place</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>1</td>
+<td>March 20, 1928</td>
+<td>Latrobe, PA</td>
+</tr>
+<tr><td>2</td>
+<td>4</td>
+<td>March 17, 1948</td>
+<td>Conway, SC</td>
+</tr>
+<tr><td>3</td>
+<td>5</td>
+<td>April 1, 1954</td>
+<td>Wilmette, IL</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="slide" id="sql-relations">
+<h1>SQL Relations - ∞ -&gt; ∞</h1>
+<p>Many-to-many relations are a bit trickier.</p>
+<p class="incremental">You can't have a multi-valued field, so there's no way to define a <em>foreign
+key</em>-like construct that would work</p>
+<p class="incremental">Instead, this relationship is modelled using a <em>join table</em>, which has two
+<em>foreign key</em> fields, one for each side of the relation.</p>
+<p class="incremental">Beyond these two, other columns can add data points describing the qualities
+of the relation itself</p>
+</div>
+<div class="slide" id="group-memberships">
+<h1>Group Memberships</h1>
+<div class="column-left small container">
+<p><strong>People</strong>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="10%" />
+<col width="31%" />
+<col width="31%" />
+<col width="28%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">username</th>
+<th class="head">first_name</th>
+<th class="head">last_name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>7</td>
+<td>whitequeen</td>
+<td>Emma</td>
+<td>Frost</td>
+</tr>
+<tr><td>8</td>
+<td>shadowcat</td>
+<td>Kitty</td>
+<td>Pryde</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="column-right small container">
+<p><strong>Groups</strong>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="21%" />
+<col width="79%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">name</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>Hellfire Club</td>
+</tr>
+<tr><td>2</td>
+<td>X-Men</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="small incremental container">
+<p><strong>Membership</strong>:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="15%" />
+<col width="30%" />
+<col width="26%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">id</th>
+<th class="head">person</th>
+<th class="head">group</th>
+<th class="head">active</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td>1</td>
+<td>7</td>
+<td>1</td>
+<td>False</td>
+</tr>
+<tr><td>2</td>
+<td>7</td>
+<td>2</td>
+<td>True</td>
+</tr>
+<tr><td>3</td>
+<td>8</td>
+<td>2</td>
+<td>True</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="slide" id="sql-syntax">
+<h1>SQL Syntax</h1>
+<p>The syntax of SQL can be broken into <em>constructs</em>:</p>
+<ul class="incremental small simple">
+<li><strong>Statements</strong> are discreet units that perform some action, like inserting
+records or querying</li>
+<li><strong>Clauses</strong> are sub-units of statements which indicate some action or
+condition</li>
+<li><strong>Expressions</strong> are elements that produce values, either unitary or as
+tables themselves</li>
+<li><strong>Predicates</strong> are conditionals which produce some boolean or three-valued
+truth value</li>
+</ul>
+<img alt="img/sql_anatomy.png" class="incremental align-center" src="img/sql_anatomy.png" style="width: 700px;" />
+<p class="image-credit incremental">image: CC-BY-SA by Ferdna <a class="reference external" href="http://en.wikipedia.org/wiki/File:SQL_ANATOMY_wiki.svg">http://en.wikipedia.org/wiki/File:SQL_ANATOMY_wiki.svg</a></p>
+</div>
+<div class="slide" id="sql-syntax-subsets">
+<h1>SQL Syntax - Subsets</h1>
+<p>SQL statements can be thought of as belonging to one of several <em>subsets</em></p>
+<dl class="incremental docutils">
+<dt>Data Definition</dt>
+<dd>Statements in this subset concern the structure of the database itself:</dd>
+</dl>
+<pre class="code sql small incremental literal-block">
+<span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="literal string symbol">&quot;jos_groups&quot;</span> <span class="punctuation">(</span>
+  <span class="literal string symbol">&quot;group_id&quot;</span> <span class="name builtin">character</span> <span class="name builtin">varying</span><span class="punctuation">(</span><span class="literal number integer">32</span><span class="punctuation">)</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span><span class="punctuation">,</span>
+  <span class="literal string symbol">&quot;name&quot;</span> <span class="name builtin">character</span> <span class="name builtin">varying</span><span class="punctuation">(</span><span class="literal number integer">255</span><span class="punctuation">)</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span><span class="punctuation">,</span>
+  <span class="literal string symbol">&quot;description&quot;</span> <span class="name builtin">text</span> <span class="keyword">NOT</span> <span class="keyword">NULL</span>
+<span class="punctuation">)</span>
+</pre>
+</div>
+<div class="slide" id="id2">
+<h1>SQL Syntax - Subsets</h1>
+<p>SQL statements can be thought of as belonging to one of several <em>subsets</em></p>
+<dl class="docutils">
+<dt>Data Manipulation</dt>
+<dd>Statements in this subset concern the altering of data within the database:</dd>
+</dl>
+<pre class="code sql small incremental literal-block">
+<span class="keyword">UPDATE</span> <span class="name">people</span>
+    <span class="keyword">SET</span> <span class="name">first_name</span><span class="operator">=</span><span class="literal string single">'Bill'</span>
+    <span class="keyword">WHERE</span> <span class="name">id</span><span class="operator">=</span><span class="literal number integer">4</span><span class="punctuation">;</span>
+</pre>
+</div>
+<div class="slide" id="id3">
+<h1>SQL Syntax - Subsets</h1>
+<p>SQL statements can be thought of as belonging to one of several <em>subsets</em></p>
+<dl class="docutils">
+<dt>Data Query</dt>
+<dd>Statements in this subset concern the retrieval of data from within the
+database:</dd>
+</dl>
+<pre class="code sql small incremental literal-block">
+<span class="keyword">SELECT</span> <span class="name">user_id</span><span class="punctuation">,</span> <span class="keyword">COUNT</span><span class="punctuation">(</span><span class="operator">*</span><span class="punctuation">)</span> <span class="keyword">c</span>
+  <span class="keyword">FROM</span> <span class="punctuation">(</span><span class="keyword">SELECT</span> <span class="name">setting_value</span> <span class="keyword">AS</span> <span class="name">interests</span><span class="punctuation">,</span> <span class="name">user_id</span>
+          <span class="keyword">FROM</span> <span class="name">user_settings</span>
+          <span class="keyword">WHERE</span> <span class="name">setting_name</span> <span class="operator">=</span> <span class="literal string single">'interests'</span><span class="punctuation">)</span> <span class="name">raw_uid</span>
+  <span class="keyword">GROUP</span> <span class="keyword">BY</span> <span class="name">user_id</span> <span class="keyword">HAVING</span> <span class="keyword">c</span> <span class="operator">&gt;</span> <span class="literal number integer">1</span><span class="punctuation">;</span>
+</pre>
+</div>
+</div>
+</body>
+</html>

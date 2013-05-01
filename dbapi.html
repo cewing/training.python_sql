@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.10: http://docutils.sourceforge.net/" />
+<meta name="version" content="S5 1.1" />
+<title>Python's DB API</title>
+<link rel="stylesheet" href="ui/uw_pce_theme/pretty.css" type="text/css" />
+<!-- configuration parameters -->
+<meta name="defaultView" content="slideshow" />
+<meta name="controlVis" content="hidden" />
+<!-- style sheet links -->
+<script src="ui/uw_pce_theme/slides.js" type="text/javascript"></script>
+<link rel="stylesheet" href="ui/uw_pce_theme/slides.css"
+      type="text/css" media="projection" id="slideProj" />
+<link rel="stylesheet" href="ui/uw_pce_theme/outline.css"
+      type="text/css" media="screen" id="outlineStyle" />
+<link rel="stylesheet" href="ui/uw_pce_theme/print.css"
+      type="text/css" media="print" id="slidePrint" />
+<link rel="stylesheet" href="ui/uw_pce_theme/opera.css"
+      type="text/css" media="projection" id="operaFix" />
+</head>
+<body>
+<div class="layout">
+<div id="controls"></div>
+<div id="currentSlide"></div>
+<div id="header">
+
+</div>
+<div id="footer">
+<h1>Python's DB API</h1>
+<h2><a class="reference external" href="http://github.com/cewing/training.python_sql">View document source</a>.
+</h2>
+</div>
+</div>
+<div class="presentation">
+<div class="slide" id="slide0">
+<h1 class="title">Python's DB API</h1>
+
+<p class="center"><strong>An introduction to the standard interface for Pythonic database
+interactions.</strong></p>
+
+</div>
+<div class="slide" id="why-the-db-api">
+<h1>Why the DB API?</h1>
+<p class="incremental">Despite the norms of SQL, individual databases have lots of differences</p>
+<p class="incremental">Programmers don't want to have to think about implementation details for
+underlying systems</p>
+<p class="incremental">It would be nice to have a single API to hide these details</p>
+<p class="incremental">Any package implementing this API would then be interchangeable</p>
+</div>
+<div class="slide" id="db-api-v1-0">
+<h1>DB-API v1.0</h1>
+<p>Finalized in 1996, PEP 248 specified DB-API version 1.0 to fulfill this goal:</p>
+<p class="incremental">&quot;This API has been defined to encourage similarity between the Python
+modules that are used to access databases. By doing this, we hope to
+achieve a consistency leading to more easily understood modules, code that
+is generally more portable across databases, and a broader reach of
+database connectivity from Python.&quot;</p>
+<p class="image-credit">source: <a class="reference external" href="http://www.python.org/dev/peps/pep-0248/">http://www.python.org/dev/peps/pep-0248/</a></p>
+</div>
+<div class="slide" id="db-api-v2-0">
+<h1>DB-API v2.0</h1>
+<p>By 2001, PEP 249 brought version 2.0 of the DB-API specification, with
+improvements:</p>
+<ul class="incremental small simple">
+<li>New column types were added to support all basic data types in &quot;modern&quot; SQL</li>
+<li>New API constants were added to help detect differences between
+implementations</li>
+<li>The semantics for calling stored procedures were clarified.</li>
+<li>Class-based exceptions were added to improve error handling possibilities</li>
+</ul>
+<p class="incremental">Discussions are currently underway to push DB-API v3.0, particularly in light
+of the change to Python 3.0</p>
+<p class="image-credit">source: <a class="reference external" href="http://www.python.org/dev/peps/pep-0249/">http://www.python.org/dev/peps/pep-0249/</a></p>
+</div>
+<div class="slide" id="a-note-on-db-api">
+<h1>A Note on DB API</h1>
+<p class="incremental center">It is important to remember that PEP 249 is <strong>only a specification</strong>.</p>
+<p class="incremental">There is no code or package for DB-API 2.0 on it's own.</p>
+<p class="incremental">Since 2.5, the Python Standard Library has provided a <a class="reference external" href="http://docs.python.org/2/library/sqlite3.html">reference
+implementation of the api</a>
+based on SQLite3</p>
+<p class="incremental">Before version 2.5, this package was available as <tt class="docutils literal">pysqlite</tt></p>
+</div>
+<div class="slide" id="using-db-api">
+<h1>Using DB API</h1>
+<p>To use the DB API with any database other than SQLite3, you must have an
+underlying API package available.</p>
+<div class="incremental container">
+<p>Implementations are available for:</p>
+<ul class="simple">
+<li>PostgreSQL (<strong>psycopg2</strong>, txpostgres, ...)</li>
+<li>MySQL (<strong>mysql-python</strong>, PyMySQL, ...)</li>
+<li>MS SQL Server (<strong>adodbapi</strong>, pymssql, mxODBC, pyodbc, ...)</li>
+<li>Oracle (<strong>cx_Oracle</strong>, mxODBC, pyodbc, ...)</li>
+<li>and many more...</li>
+</ul>
+</div>
+<p class="image-credit">source: <a class="reference external" href="http://wiki.python.org/moin/DatabaseInterfaces">http://wiki.python.org/moin/DatabaseInterfaces</a></p>
+</div>
+<div class="slide" id="installing-api-packages">
+<h1>Installing API Packages</h1>
+<p>Most db api packages can be installed using typical Pythonic methods:</p>
+<pre class="literal-block">
+$ easy_install psycopg2
+$ pip install mysql-python
+...
+</pre>
+<p class="incremental">Most api packages will require that the development headers for the underlying
+database system be available. Without these, the C symbols required for
+communication with the db are not present and the wrapper cannot work.</p>
+</div>
+<div class="slide" id="odd-men-out">
+<h1>Odd Men Out</h1>
+<p>Some of the db api wrappers have special installation requirements:</p>
+<p class="incremental">The MS SQL package runs only on Windows and requires <tt class="docutils literal">pywin32</tt>. It is
+included in versions of <tt class="docutils literal">pywin32</tt> since v211.</p>
+<div class="incremental container">
+<p>The <tt class="docutils literal">cx_Oracle</tt> package has binary installers, or can be installed from
+source using distutils:</p>
+<pre class="literal-block">
+$ python setup.py build
+$ python setup.py install
+</pre>
+</div>
+</div>
+<div class="slide" id="what-do-you-get">
+<h1>What Do You Get?</h1>
+<p class="big-centered"><strong>What is in the DB API?</strong></p>
+</div>
+<div class="slide" id="globals">
+<h1>Globals</h1>
+<p>DB-API2 implementations provide the following global values:</p>
+<div class="small container">
+<dl class="incremental docutils">
+<dt><strong>apilevel</strong></dt>
+<dd>String constant indicating the api version (&quot;1.0&quot; or &quot;2.0&quot;)</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>threadsafety</strong></dt>
+<dd>Integer constant between 0 and 3 indicating the scope in which threads may
+safely be used</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>paramstyle</strong></dt>
+<dd>String contstant indicating the style of marker used for parameter
+substitution in SQL expressions</dd>
+</dl>
+</div>
+<p class="incremental">These can be used to tailor your program's expectations</p>
+</div>
+<div class="slide" id="a-constructor">
+<h1>A Constructor</h1>
+<p>DB API provides a constructor <tt class="docutils literal">connect</tt>, which returns a <tt class="docutils literal">Connection</tt>
+object:</p>
+<pre class="code python small literal-block">
+<span class="name">connect</span><span class="punctuation">(</span><span class="name">parameters</span><span class="punctuation">)</span>
+</pre>
+<p class="incremental">This can be considered the entry point for the module. Once you've got a
+connection, everything else flows from there.</p>
+<p class="incremental">The <em>parameters</em> required and accepted by the <tt class="docutils literal">connect</tt> constructor will
+vary from implementation to implementation, since they are highly specific to
+the underlying database.</p>
+</div>
+<div class="slide" id="a-connection">
+<h1>A Connection</h1>
+<p class="small">Some methods may not be supported by all implementations:</p>
+<div class="small container">
+<dl class="incremental docutils">
+<dt><strong>.close()</strong></dt>
+<dd>Closes the connection to the database permanently.  Attempts to use the
+connection after calling this will raise a DB-API <tt class="docutils literal">Error</tt>.</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.commit()</strong></dt>
+<dd>explicitly commit any pending transactions to the databse.  The method
+should be a no-op if the underlying db does not support transactions.</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.rollback()</strong></dt>
+<dd>This optional method causes a transaction to be rolled back to the
+starting point.  It may not be implemented everywhere.</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.cursor()</strong></dt>
+<dd>returns a <tt class="docutils literal">Cursor</tt> object which uses this <tt class="docutils literal">Connection</tt>.</dd>
+</dl>
+</div>
+</div>
+<div class="slide" id="a-cursor-settings">
+<h1>A Cursor - settings</h1>
+<p class="small">You can use a few values to control the rows returned by the cursor:</p>
+<div class="small container">
+<dl class="incremental docutils">
+<dt><strong>.arraysize</strong></dt>
+<dd>An integer which controls how many rows are returned at a time by
+<tt class="docutils literal">.fetchmany</tt> (and optionally how many to send at a time with
+<tt class="docutils literal">.executemany</tt>) Defaults to <tt class="docutils literal">1</tt></dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.setinputsizes(sizes)</strong></dt>
+<dd>Used to set aside memory regions for paramters passed to an operation</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.setoutputsize(size[, column])</strong></dt>
+<dd>Used to control buffer size for large columns returned by an operation
+(<tt class="docutils literal">BLOB</tt> or <tt class="docutils literal">LONG</tt> types, for example).</dd>
+</dl>
+</div>
+<p class="small incremental">The final two methods may be implemented as no-ops</p>
+</div>
+<div class="slide" id="a-cursor-operations">
+<h1>A Cursor - operations</h1>
+<p class="small">The cursor should be used to run operations on the database:</p>
+<div class="small container">
+<dl class="incremental docutils">
+<dt><strong>.execute(operation[, parameters])</strong></dt>
+<dd>Prepares and then runs a database operation. Parameter style (seq or
+mapping) and markers are implementation specific (see <tt class="docutils literal">paramstyle</tt>)</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.executemany(operation[, seq_of_params])</strong></dt>
+<dd>Prepares and the runs an operations once for each set of parameters
+provided (this replaces the old v1 behavior of passing a seq to
+<tt class="docutils literal">.execute</tt>).</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.callproc(procname[, parameters])</strong></dt>
+<dd>Calls a stored DB procedure with the provided parameters. Returns a
+modified version of the provided parameters with <tt class="docutils literal">output</tt> and
+<tt class="docutils literal">input/output</tt> parameters replaced</dd>
+</dl>
+</div>
+</div>
+<div class="slide" id="a-cursor-attributes">
+<h1>A Cursor - attributes</h1>
+<p class="small">These attributes of <tt class="docutils literal">Cursor</tt> can help you learn about the results of
+operations:</p>
+<div class="small container">
+<dl class="incremental docutils">
+<dt><strong>.rowcount</strong></dt>
+<dd>Tells how many rows have been returned or affected by the last
+operation. The number will be <tt class="docutils literal"><span class="pre">-1</span></tt> if no operation has been performed.</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.description</strong></dt>
+<dd>Returns a sequence of 7-item sequences describing each of the columns in
+the result row(s) returned (None if no operation has been performed):</dd>
+</dl>
+<ul class="incremental simple">
+<li>name</li>
+<li>type_code</li>
+<li>display_size (optional)</li>
+<li>internal_size (optional)</li>
+<li>precision (optional)</li>
+<li>scale (optional)</li>
+<li>null_ok (optional)</li>
+</ul>
+</div>
+</div>
+<div class="slide" id="a-cursor-results">
+<h1>A Cursor - results</h1>
+<p class="small">The return value <tt class="docutils literal">.execute</tt> or <tt class="docutils literal">.executemany</tt> is undefined and should not
+be used.  These methods are the way to get results after an operation:</p>
+<div class="small container">
+<dl class="incremental docutils">
+<dt><strong>.fetchone()</strong></dt>
+<dd>Returns the next row from a result set, and <tt class="docutils literal">None</tt> when none remain.</dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.fetchmany([size=cursor.arraysize])</strong></dt>
+<dd>Returns a sequence of <em>size</em> rows (or fewer) from a result set. An empty
+sequence is returned when no rows remain. Defaults to <tt class="docutils literal">arraysize</tt></dd>
+</dl>
+<dl class="incremental docutils">
+<dt><strong>.fetchall()</strong></dt>
+<dd>Returns all (remaining) rows from a result set.  This behavior <em>may</em> be
+affected by <tt class="docutils literal">arraysize</tt>.</dd>
+</dl>
+</div>
+<p class="small incremental">Note that each of these methods will raise a DB API <tt class="docutils literal">Error</tt> if no operation
+has been performed (or if no result set was produced)</p>
+</div>
+<div class="slide" id="data-types-constructors">
+<h1>Data Types &amp; Constructors</h1>
+<p class="small">The DB-API provides types and constructors for data:</p>
+<ul class="small incremental simple">
+<li><strong>Date(year, month, day)</strong> - constructs an object holding a date value</li>
+<li><strong>Time(hour, min, sec)</strong> - constructs an object holding a time value</li>
+<li><strong>Timestamp(y, m, d, h, min, s)</strong> - constructs an object holding a
+timestamp</li>
+</ul>
+<p class="small incremental">Each of the above has a corresponding <strong>&lt;name&gt;FromTicks(ticks)</strong> which
+returns the same type given a single integer argument (seconds since the
+<em>epoch</em>)</p>
+<ul class="small incremental simple">
+<li><strong>Binary(string)</strong> - constructs an object to hold long binary string
+data</li>
+<li><strong>STRING</strong> - a type to describe columns that hold string values
+(<tt class="docutils literal">CHAR</tt>)</li>
+<li><strong>BINARY</strong> - a type to describe long binary columns (<tt class="docutils literal">BLOB</tt>, <tt class="docutils literal">RAW</tt>)</li>
+<li><strong>NUMBER</strong> - a type to describe numeric columns</li>
+<li><strong>DATETIME</strong> - a type to describe date/time/datetime columns</li>
+<li><strong>ROWID</strong> - a type to describe the <tt class="docutils literal">Row ID</tt> column in a database</li>
+</ul>
+<p class="small incremental">SQL <tt class="docutils literal">NULL</tt> values are represented by Python's <tt class="docutils literal">None</tt></p>
+</div>
+<div class="slide" id="exceptions">
+<h1>Exceptions</h1>
+<p>The DB API specification requires implementations to create the following
+hierarchy of custom Exception classes:</p>
+<pre class="incremental small literal-block">
+StandardError
+|__Warning
+|__Error
+   |__InterfaceError (a problem with the db api)
+   |__DatabaseError (a problem with the database)
+      |__DataError (bad data, values out of range, etc.)
+      |__OperationalError (the db has an issue out of our control)
+      |__IntegrityError
+      |__InternalError
+      |__ProgrammingError (something wrong with the operation)
+      |__NotSupportedError (the operation is not supported)
+</pre>
+</div>
+<div class="slide" id="that-s-all-folks">
+<h1>That's All, Folks</h1>
+<p>Aside from some custom extensions not required by the specification, that's
+it.</p>
+<p class="incremental">So how do you interact with this?</p>
+<p class="incremental center">Let's take a short break, and then find out.</p>
+</div>
+</div>
+</body>
+</html>
